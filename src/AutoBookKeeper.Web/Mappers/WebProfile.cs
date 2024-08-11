@@ -16,5 +16,6 @@ public class WebProfile : Profile
         CreateMap<UserModel, UserViewModel>().ReverseMap();
         CreateMap<UserModel, LoginDto>().ReverseMap();
         CreateMap<UserModel, RegisterDto>().ReverseMap();
+        CreateMap<UserModel, UserProfileViewModel>().ReverseMap();
     }
 }

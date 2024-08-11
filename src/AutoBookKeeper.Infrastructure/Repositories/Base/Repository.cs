@@ -48,7 +48,10 @@ public class Repository<TEntity, TId> : IRepository<TEntity, TId>
     
     public async Task<TEntity?> GetByIdAsync(TId id)
     {
-        return await DbContext.Set<TEntity>().AsNoTracking().SingleOrDefaultAsync();
+        return await DbContext.Set<TEntity>()
+            .AsNoTracking()
+            .Where(e => e.Id != null && e.Id.Equals(id))
+            .SingleOrDefaultAsync();
     }
 
     public async Task<OperationResult<TEntity>> CreateAsync(TEntity entity)
