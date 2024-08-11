@@ -6,6 +6,10 @@ namespace AutoBookKeeper.Core.Specifications;
 
 public class UserSpecification : BaseSpecification<User>
 {
+    public UserSpecification()
+    {
+    }
+    
     public UserSpecification(Expression<Func<User, bool>> criteria) : base(criteria)
     {
     }

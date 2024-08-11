@@ -4,6 +4,11 @@ namespace AutoBookKeeper.Core.Specifications.Base;
 
 public abstract class BaseSpecification<T> : ISpecification<T>
 {
+    protected BaseSpecification()
+    {
+        Criteria = _ => true;
+    }
+    
     protected BaseSpecification(Expression<Func<T, bool>> criteria)
     {
         Criteria = criteria;

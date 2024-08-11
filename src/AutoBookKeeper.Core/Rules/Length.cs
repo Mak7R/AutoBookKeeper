@@ -13,7 +13,9 @@ public static class Length
         public const int MinNameLength = 4;
         public const int MaxNameLength = 64;
         public const int MaxEmailLength = 320;
-        public const int MaxPasswordHashLength = 256;
+        public const int MaxPasswordHashLength = 128;
+        public const int MaxPasswordLength = 256;
+        public const int MinPasswordLength = 4;
     } 
 
     public static class BookStrings

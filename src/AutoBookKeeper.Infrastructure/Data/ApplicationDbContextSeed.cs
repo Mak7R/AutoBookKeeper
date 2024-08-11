@@ -12,7 +12,7 @@ public class ApplicationDbContextSeed
     { 
         try
         {
-            await dbContext.Database.EnsureCreatedAsync();
+            //await dbContext.Database.EnsureCreatedAsync();
             if (dbContext.Database.IsRelational()) 
                 await dbContext.Database.MigrateAsync();
 
