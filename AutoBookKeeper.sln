@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35122.118
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{54C112AC-6D3F-4F82-A1C0-C7ABABD6AB63}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1F314ACC-C1BD-4ABF-94BF-7B0B2E3CF3E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoBookKeeper.Web", "src\AutoBookKeeper.Web\AutoBookKeeper.Web.csproj", "{F0F0F611-1AEB-4AD0-9157-2771D5962548}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoBookKeeper.Core", "src\AutoBookKeeper.Core\AutoBookKeeper.Core.csproj", "{A6BE6D8B-E8DA-4087-A3B5-E8F682D2D872}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoBookKeeper.Application", "src\AutoBookKeeper.Application\AutoBookKeeper.Application.csproj", "{57849CE4-F82B-4CF3-8EC1-B065DCDE2DBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoBookKeeper.Infrastructure", "src\AutoBookKeeper.Infrastructure\AutoBookKeeper.Infrastructure.csproj", "{A6944A14-ECAE-4FD4-AD85-567E939130C5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{25223C8A-68FF-4983-A3C9-E67717878E6A}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F0F0F611-1AEB-4AD0-9157-2771D5962548}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0F0F611-1AEB-4AD0-9157-2771D5962548}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0F0F611-1AEB-4AD0-9157-2771D5962548}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0F0F611-1AEB-4AD0-9157-2771D5962548}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6BE6D8B-E8DA-4087-A3B5-E8F682D2D872}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6BE6D8B-E8DA-4087-A3B5-E8F682D2D872}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6BE6D8B-E8DA-4087-A3B5-E8F682D2D872}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6BE6D8B-E8DA-4087-A3B5-E8F682D2D872}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57849CE4-F82B-4CF3-8EC1-B065DCDE2DBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57849CE4-F82B-4CF3-8EC1-B065DCDE2DBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57849CE4-F82B-4CF3-8EC1-B065DCDE2DBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57849CE4-F82B-4CF3-8EC1-B065DCDE2DBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6944A14-ECAE-4FD4-AD85-567E939130C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6944A14-ECAE-4FD4-AD85-567E939130C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6944A14-ECAE-4FD4-AD85-567E939130C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6944A14-ECAE-4FD4-AD85-567E939130C5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F0F0F611-1AEB-4AD0-9157-2771D5962548} = {54C112AC-6D3F-4F82-A1C0-C7ABABD6AB63}
+		{A6BE6D8B-E8DA-4087-A3B5-E8F682D2D872} = {54C112AC-6D3F-4F82-A1C0-C7ABABD6AB63}
+		{57849CE4-F82B-4CF3-8EC1-B065DCDE2DBA} = {54C112AC-6D3F-4F82-A1C0-C7ABABD6AB63}
+		{A6944A14-ECAE-4FD4-AD85-567E939130C5} = {54C112AC-6D3F-4F82-A1C0-C7ABABD6AB63}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B498E9EF-E5F4-4F1C-92E7-38B18D5FE22C}
+	EndGlobalSection
+EndGlobal

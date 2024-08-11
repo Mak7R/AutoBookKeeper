@@ -1,0 +1,47 @@
+﻿version: '3.8'
+
+services:
+  web:
+    image: autobookkeeper:latest
+    container_name: auto_book_keeper_app
+    build:
+      context: .
+      dockerfile: src/AutoBookKeeper.Web/Dockerfile
+    
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ActiveConnection=DockerDatabase
+    
+    ports:
+      - "8040:8080"
+      - "8041:8081"
+    
+    depends_on:
+      - postgres
+    
+    networks:
+      - auto_book_keeper_network
+  
+  postgres:
+    image: postgres
+    container_name: auto_book_keeper_postgres
+    environment:
+      POSTGRES_USER: rootuser
+      POSTGRES_PASSWORD: DbPass20190502
+    
+    ports:
+      - "8011:5432"
+    
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - D:\Programming\Databases\Backups:/backups
+    
+    networks:
+      - auto_book_keeper_network
+
+networks:
+  auto_book_keeper_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
