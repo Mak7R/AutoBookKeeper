@@ -3,9 +3,9 @@ using AutoBookKeeper.Application.Interfaces;
 
 namespace AutoBookKeeper.Web.Filters;
 
-public class AuthorizeAsBookReadPermissionOwner : AuthorizeAsAttribute
+public class AuthorizeAsBookOwner : AuthorizeAsAttribute
 {
-    public AuthorizeAsBookReadPermissionOwner(string bookIdRoute) : base(GetValidator(bookIdRoute))
+    public AuthorizeAsBookOwner(string bookIdRoute) : base(GetValidator(bookIdRoute))
     {
     }
     
@@ -26,8 +26,6 @@ public class AuthorizeAsBookReadPermissionOwner : AuthorizeAsAttribute
             
             if (string.Equals(currentUserIdString, book?.Owner.Id.ToString(), StringComparison.CurrentCultureIgnoreCase))
                 return true;
-
-            // check is user book follower
             
             return false;
         };

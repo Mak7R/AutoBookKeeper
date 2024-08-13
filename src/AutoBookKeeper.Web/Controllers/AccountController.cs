@@ -60,7 +60,7 @@ public class AccountController : ApiController
         return Ok(new AuthenticationResponse
         {
             Token = token,
-            User = _mapper.Map<UserViewModel>(user)
+            User = _mapper.Map<UserProfileViewModel>(user)
         });
     }
 

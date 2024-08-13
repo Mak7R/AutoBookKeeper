@@ -24,22 +24,10 @@ public class BooksController : ApiController
     [HttpGet("users/{userId:guid}/books")]
     public async Task<IActionResult> GetAll(Guid userId)
     {
-        var books = await _booksService.GetAvailableForUserBooks(userId);
+        var books = await _booksService.GetUserBooks(userId);
         return Ok(_mapper.Map<IEnumerable<BookViewModel>>(books));
     }
 
-    [AuthorizeAsBookReadPermissionOwner("bookId")]
-    [HttpGet("users/books/{bookId:guid}")]
-    public async Task<IActionResult> Get(Guid bookId)
-    {
-        var book = await _booksService.GetByIdAsync(bookId);
-
-        if (book == null)
-            return Problem("Book was not found", statusCode: 404);
-            
-        return Ok(_mapper.Map<BookViewModel>(book));
-    }
-    
     [AuthorizeAsCurrentUser("userId")]
     [HttpPost("users/{userId:guid}/books")]
     public async Task<IActionResult> Create(Guid userId, CreateBookDto createBookDto)
@@ -61,5 +49,34 @@ public class BooksController : ApiController
                 { "errors", result.Errors }
             }
         });
+    }
+    
+    [AuthorizeAsBookOwner("bookId")]
+    [HttpGet("users/books/{bookId:guid}")]
+    public async Task<IActionResult> Get(Guid bookId)
+    {
+        var book = await _booksService.GetByIdAsync(bookId);
+
+        if (book == null)
+            return Problem("Book was not found", statusCode: 404);
+            
+        return Ok(_mapper.Map<BookViewModel>(book));
+    }
+    
+    
+
+    [AuthorizeAsCurrentUser("userId")]
+    [HttpPut("users/books/{bookId:guid}")]
+    public async Task<IActionResult> Update(Guid bookId /* dto */)
+    {
+        throw new NotImplementedException();
+    }
+
+
+    [AuthorizeAsBookOwner("userId")]
+    [HttpDelete("users/books/{bookId:guid}")]
+    public async Task<IActionResult> Delete(Guid bookId)
+    {
+        throw new NotImplementedException();
     }
 }
