@@ -133,13 +133,16 @@ public static class ConfigureServicesExtension
     private static void ConfigureInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IUsersRepository, UsersRepository>();
+        services.AddScoped<IBooksRepository, BooksRepository>();
     }
     
     private static void ConfigureApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddTransient<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddTransient<IAuthenticationService, JwtAuthenticationService>();
+        
         services.AddScoped<IUsersService, UsersService>();
+        services.AddScoped<IBooksService, BooksService>();
     }
 
     private static void ConfigureOptions(this IServiceCollection services, IConfiguration configuration)

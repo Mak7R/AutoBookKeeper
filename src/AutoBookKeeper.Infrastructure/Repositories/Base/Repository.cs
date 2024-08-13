@@ -26,27 +26,27 @@ public class Repository<TEntity, TId> : IRepository<TEntity, TId>
         return SpecificationEvaluator<TEntity, TId>.GetQuery(DbContext.Set<TEntity>().AsNoTracking().AsQueryable(), spec);
     }
     
-    public async Task<IReadOnlyList<TEntity>> GetAllAsync()
+    public virtual async Task<IReadOnlyList<TEntity>> GetAllAsync()
     {
         return await DbContext.Set<TEntity>().ToListAsync();
     }
 
-    public async Task<IReadOnlyList<TEntity>> GetAsync(ISpecification<TEntity> spec)
+    public virtual async Task<IReadOnlyList<TEntity>> GetAsync(ISpecification<TEntity> spec)
     {
         return await ApplySpecification(spec).ToListAsync();
     }
 
-    public async Task<int> CountAsync()
+    public virtual async Task<int> CountAsync()
     {
         return await DbContext.Set<TEntity>().CountAsync();
     }
     
-    public async Task<int> CountAsync(ISpecification<TEntity> spec)
+    public virtual async Task<int> CountAsync(ISpecification<TEntity> spec)
     {
         return await ApplySpecification(spec).CountAsync();
     }
     
-    public async Task<TEntity?> GetByIdAsync(TId id)
+    public virtual async Task<TEntity?> GetByIdAsync(TId id)
     {
         return await DbContext.Set<TEntity>()
             .AsNoTracking()
@@ -54,7 +54,7 @@ public class Repository<TEntity, TId> : IRepository<TEntity, TId>
             .SingleOrDefaultAsync();
     }
 
-    public async Task<OperationResult<TEntity>> CreateAsync(TEntity entity)
+    public virtual async Task<OperationResult<TEntity>> CreateAsync(TEntity entity)
     {
         try
         {
@@ -69,7 +69,7 @@ public class Repository<TEntity, TId> : IRepository<TEntity, TId>
         }
     }
 
-    public async Task<OperationResult<TEntity>> UpdateAsync(TEntity entity)
+    public virtual async Task<OperationResult<TEntity>> UpdateAsync(TEntity entity)
     {
         try
         {
@@ -84,7 +84,7 @@ public class Repository<TEntity, TId> : IRepository<TEntity, TId>
         }
     }
 
-    public async Task<OperationResult<TEntity>> DeleteAsync(TEntity entity)
+    public virtual async Task<OperationResult<TEntity>> DeleteAsync(TEntity entity)
     {
         try
         {

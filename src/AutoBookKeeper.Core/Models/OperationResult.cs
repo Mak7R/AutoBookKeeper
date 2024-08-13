@@ -25,7 +25,24 @@ public class OperationResult<T>
         new() { Status = status, Exception = exception, Errors = [exception.Message] };
 
     public static OperationResult<T> FromErrors(IEnumerable<string> errors) =>
-        new OperationResult<T> { Status = 500, Errors = errors };
+        new() { Status = 500, Errors = errors };
     public static OperationResult<T> FromErrors(int status, IEnumerable<string> errors) =>
-        new OperationResult<T> { Status = status, Errors = errors };
+        new() { Status = status, Errors = errors };
+}
+
+public static class OperationResultExtensions
+{
+    public static OperationResult<TDest> ToOperationResult<TSource, TDest>(this OperationResult<TSource> operationResult, TDest? result = default)
+    {
+        return new OperationResult<TDest>
+        {
+            Status = operationResult.Status,
+            Exception = operationResult.Exception,
+            Errors = operationResult.Errors,
+            Result = result
+        };
+    }
+    
+    public static OperationResult<TDest> ToOperationResult<TSource, TDest>(this OperationResult<TSource> operationResult, Func<TSource?, TDest?> mapper) =>
+        operationResult.ToOperationResult(mapper(operationResult.Result));
 }

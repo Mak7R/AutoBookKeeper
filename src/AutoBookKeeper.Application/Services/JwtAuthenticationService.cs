@@ -9,8 +9,6 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace AutoBookKeeper.Application.Services;
 
-
-
 public class JwtAuthenticationService : IAuthenticationService
 {
     private readonly JwtAuthenticationOptions _options;
@@ -29,7 +27,7 @@ public class JwtAuthenticationService : IAuthenticationService
             new(JwtRegisteredClaimNames.Iat, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString(),
                 ClaimValueTypes.Integer64),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, user.Name ?? string.Empty),
+            new(ClaimTypes.Name, user.UserName),
             new(ClaimTypes.Email, user.Email ?? string.Empty)
         };
 

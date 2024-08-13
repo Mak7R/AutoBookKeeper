@@ -1,4 +1,5 @@
 using AutoBookKeeper.Web.Extensions;
+using AutoBookKeeper.Web.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,7 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
+    app.UseExceptionHandlingMiddleware();
     app.UseHsts();
 }
 

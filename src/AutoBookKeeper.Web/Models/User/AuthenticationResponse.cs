@@ -1,4 +1,4 @@
-namespace AutoBookKeeper.Web.Models;
+namespace AutoBookKeeper.Web.Models.User;
 
 public class AuthenticationResponse
 {

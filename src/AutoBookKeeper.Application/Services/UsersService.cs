@@ -28,16 +28,16 @@ public class UsersService : IUsersService
         return ApplicationMapper.Mapper.Map<UserModel>(user);
     }
 
-    public async Task<UserModel?> GetByNameAsync(string name)
+    public async Task<UserModel?> GetByUserNameAsync(string userName)
     {
-        var users = await _usersRepository.GetAsync(new UserSpecification(u => u.Name == name));
+        var users = await _usersRepository.GetAsync(new UserSpecification(u => u.UserName == userName));
         return ApplicationMapper.Mapper.Map<UserModel>(users.SingleOrDefault());
     }
 
     public async Task<UserModel?> GetByEmailAsync(string email)
     {
         var users = await _usersRepository.GetAsync(new UserSpecification(u => u.Email == email));
-        throw new NotImplementedException();
+        return ApplicationMapper.Mapper.Map<UserModel>(users.FirstOrDefault());
     }
 
     public async Task<int> CountAsync()
@@ -51,15 +51,20 @@ public class UsersService : IUsersService
         if (userEntity == null)
             return false;
 
-        return _passwordHasher.VerifyPassword(userEntity.PasswordHash, password);
+        return VerifyPassword(userEntity, password);
     }
 
-    public async Task<OperationResult<UserModel>> CreateUserAsync(UserModel user)
+    private bool VerifyPassword(User user, string password)
+    {
+        return _passwordHasher.VerifyPassword(user.PasswordHash, password);
+    }
+
+    public async Task<OperationResult<UserModel>> CreateAsync(UserModel user)
     {
         return await PrivateCreateUserAsync(user, string.Empty);
     }
     
-    public async Task<OperationResult<UserModel>> CreateUserAsync(UserModel user, string password)
+    public async Task<OperationResult<UserModel>> CreateAsync(UserModel user, string password)
     {
         ArgumentException.ThrowIfNullOrEmpty(password);
 
@@ -78,33 +83,51 @@ public class UsersService : IUsersService
         
         var result = await _usersRepository.CreateAsync(userEntity);
 
-        if (result.IsSuccessful)
-            return OperationResult<UserModel>.FromResult(ApplicationMapper.Mapper.Map<UserModel>(result.Result));
-        return new OperationResult<UserModel>
-        {
-            Status = result.Status,
-            Errors = result.Errors,
-            Exception = result.Exception
-        };
+        return ParseRepositoryResult(result);
     }
 
-    public Task<OperationResult<UserModel>> UpdateUserAsync(UserModel user)
+    public async Task<OperationResult<UserModel>> UpdateAsync(UserModel user)
     {
-        throw new NotImplementedException();
+        var userEntity = await _usersRepository.GetByIdAsync(user.Id);
+        if (userEntity == null) return ResultWhenUserNotFound();
+
+        if (!string.IsNullOrWhiteSpace(user.UserName)) userEntity.UserName = user.UserName;
+        if (!string.IsNullOrWhiteSpace(user.Email)) userEntity.Email = user.Email;
+        
+        // TODO check is this userName already exists
+        // TODO check is this email already exists
+        
+        var result = await _usersRepository.UpdateAsync(userEntity);
+        
+        return ParseRepositoryResult(result);
     }
 
-    public async Task<OperationResult<UserModel>> DeleteUserAsync(UserModel user)
+    public async Task<OperationResult<UserModel>> UpdateUserPassword(UserModel user, string currentPassword, string newPassword)
+    {
+        var userEntity = await _usersRepository.GetByIdAsync(user.Id);
+        if (userEntity == null) return ResultWhenUserNotFound();
+
+        if (!VerifyPassword(userEntity, currentPassword))
+            return OperationResult<UserModel>.FromErrors(400, ["Invalid password"]);
+        
+        userEntity.PasswordHash = _passwordHasher.HashPassword(newPassword);
+        
+        var result = await _usersRepository.UpdateAsync(userEntity);
+        
+        return ParseRepositoryResult(result);
+    }
+
+    public async Task<OperationResult<UserModel>> DeleteAsync(UserModel user)
     {
         var userEntity = ApplicationMapper.Mapper.Map<User>(user);
         var result = await _usersRepository.DeleteAsync(userEntity);
 
-        if (result.IsSuccessful)
-            return OperationResult<UserModel>.FromResult(user);
-        return new OperationResult<UserModel>
-        {
-            Status = result.Status,
-            Errors = result.Errors,
-            Exception = result.Exception
-        };
+        return ParseRepositoryResult(result);
     }
+
+    private static OperationResult<UserModel> ParseRepositoryResult(OperationResult<User> repositoryResult) => 
+        repositoryResult.ToOperationResult(ApplicationMapper.Mapper.Map<UserModel>);
+    
+    private static OperationResult<UserModel> ResultWhenUserNotFound() => 
+        OperationResult<UserModel>.FromErrors(404, ["User was not found"]);
 }

@@ -10,8 +10,8 @@ public static class Length
 {   
     public static class UserStrings
     {
-        public const int MinNameLength = 4;
-        public const int MaxNameLength = 64;
+        public const int MinUserNameLength = 4;
+        public const int MaxUserNameLength = 64;
         public const int MaxEmailLength = 320;
         public const int MaxPasswordHashLength = 128;
         public const int MaxPasswordLength = 256;
