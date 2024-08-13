@@ -128,6 +128,19 @@ public static class ConfigureServicesExtension
             config.DefaultApiVersion = new ApiVersion(1, 0);
             config.AssumeDefaultVersionWhenUnspecified = true;
         });
+        
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(builder =>
+            {
+                builder.WithOrigins(configuration.GetSection("AllowedOrigins").Get<string[]>() ??
+                                    throw new InvalidOperationException("AllowedOrigins was not found"));
+                builder.WithHeaders(configuration.GetSection("AllowedHeaders").Get<string[]>() ??
+                                    throw new InvalidOperationException("AllowedHeaders was not found"));
+                builder.WithMethods(configuration.GetSection("AllowedMethods").Get<string[]>() ??
+                                    throw new InvalidOperationException("AllowedMethods was not found"));
+            });
+        });
     }
     
     private static void ConfigureInfrastructureServices(this IServiceCollection services, IConfiguration configuration)

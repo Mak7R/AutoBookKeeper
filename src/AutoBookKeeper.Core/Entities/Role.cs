@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using AutoBookKeeper.Core.Entities.Base;
 using AutoBookKeeper.Core.ValueObjects;
 
@@ -13,5 +14,7 @@ public class Role : Entity<Guid>
     
     public BookAccess Access { get; set; }
     
+    [ForeignKey(nameof(Book))]
+    public Guid BookId { get; set; }
     public Book Book { get; set; }
 }

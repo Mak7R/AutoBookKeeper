@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using AutoBookKeeper.Core.Entities.Base;
 
 using static AutoBookKeeper.Core.Rules.Length.TransactionStrings;
@@ -15,7 +16,11 @@ public class Transaction : Entity<Guid>
     
     public DateTime TransactionTime { get; set; }
     
+    [ForeignKey(nameof(Type))]
+    public Guid TypeId { get; set; }
     public TransactionType Type { get; set; }
     
+    [ForeignKey(nameof(Book))]
+    public Guid BookId { get; set; }
     public Book Book { get; set; }
 }
