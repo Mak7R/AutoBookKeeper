@@ -147,6 +147,9 @@ public static class ConfigureServicesExtension
     {
         services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<IBooksRepository, BooksRepository>();
+        services.AddScoped<ITransactionsRepository, TransactionsRepository>();
+        services.AddScoped<ITransactionTypesRepository, TransactionTypesRepository>();
+        services.AddScoped<IRolesRepository, RolesRepository>();
     }
     
     private static void ConfigureApplicationServices(this IServiceCollection services, IConfiguration configuration)
@@ -156,6 +159,9 @@ public static class ConfigureServicesExtension
         
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IBooksService, BooksService>();
+        services.AddScoped<ITransactionsService, TransactionsService>();
+        services.AddScoped<ITransactionTypesService, TransactionTypesService>();
+        services.AddScoped<IRolesService, RolesService>();
     }
 
     private static void ConfigureOptions(this IServiceCollection services, IConfiguration configuration)

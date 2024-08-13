@@ -10,6 +10,24 @@ public class ApplicationMappingProfile : Profile
     {
         CreateUserMaps();
         CreateBookMaps();
+        CreateTransactionMaps();
+        CreateTransactionTypeMaps();
+        CreateRoleMaps();
+    }
+
+    private void CreateRoleMaps()
+    {
+        CreateMap<Role, RoleModel>().ReverseMap();
+    }
+
+    private void CreateTransactionTypeMaps()
+    {
+        CreateMap<TransactionType, TransactionTypeModel>().ReverseMap();
+    }
+
+    private void CreateTransactionMaps()
+    {
+        CreateMap<Transaction, TransactionModel>().ReverseMap();
     }
 
     private void CreateBookMaps()
