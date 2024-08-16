@@ -11,6 +11,5 @@ public class RoleModel : BaseModel<Guid>
     
     public BookAccess Access { get; set; }
     
-    [ForeignKey(nameof(Book))]
-    public Guid BookId { get; set; }
+    public BookModel Book { get; set; }
 }

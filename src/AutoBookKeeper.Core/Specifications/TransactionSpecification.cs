@@ -6,11 +6,12 @@ namespace AutoBookKeeper.Core.Specifications;
 
 public class TransactionSpecification : BaseSpecification<Transaction>
 {
-    public TransactionSpecification()
+    private TransactionSpecification(Expression<Func<Transaction, bool>> criteria) : base(criteria)
     {
     }
-    
-    public TransactionSpecification(Expression<Func<Transaction, bool>> criteria) : base(criteria)
+
+    public static ISpecification<Transaction> GetBookTransactions(Guid bookId)
     {
+        return new TransactionSpecification(t => t.BookId == bookId);
     }
 }

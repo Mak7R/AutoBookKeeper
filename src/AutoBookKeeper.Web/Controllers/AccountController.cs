@@ -1,7 +1,7 @@
 using AutoBookKeeper.Application.Interfaces;
 using AutoBookKeeper.Application.Models;
 using AutoBookKeeper.Web.Controllers.Base;
-using AutoBookKeeper.Web.Filters;
+using AutoBookKeeper.Web.Models.Account;
 using AutoBookKeeper.Web.Models.User;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AutoBookKeeper.Web.Controllers;
 
+[AllowAnonymous]
 [ApiVersion("1.0")]
 public class AccountController : ApiController
 {
@@ -22,9 +23,8 @@ public class AccountController : ApiController
         _authenticationService = authenticationService;
         _mapper = mapper;
     }
-
-    [AllowAnonymous]
-    [HttpPost("account/register")]
+    
+    [HttpPost("/register")]
     public async Task<IActionResult> Register(RegisterDto registerDto)
     {
         var user = _mapper.Map<UserModel>(registerDto);
@@ -44,8 +44,7 @@ public class AccountController : ApiController
         });
     }
     
-    [AllowAnonymous]
-    [HttpPost("account/login")]
+    [HttpPost("/login")]
     public async Task<IActionResult> Login(LoginDto loginDto)
     {
         var user = await _usersService.GetByUserNameAsync(loginDto.UserName);
@@ -55,106 +54,35 @@ public class AccountController : ApiController
         if (!await _usersService.VerifyPasswordAsync(user, loginDto.Password))
             return Problem("Invalid email or password", statusCode: 400);
         
-        var token = _authenticationService.GenerateToken(user);
+        var result = await _authenticationService.GenerateTokenAsync(user);
 
+        if (!result.HasValue)
+            return Problem("Error was occured while generating access token", statusCode: 500);
+        
         return Ok(new AuthenticationResponse
         {
-            Token = token,
-            User = _mapper.Map<UserProfileViewModel>(user)
+            UserId = user.Id,
+            AccessToken = result.Value.AccessToken,
+            RefreshToken = result.Value.RefreshToken
         });
     }
 
-    [Authorize] // todo view permissions
-    [HttpGet("account/{userId:guid}")]
-    public async Task<IActionResult> Profile(Guid userId)
+    [HttpPost("/refresh-token")]
+    public async Task<IActionResult> RefreshToken(RefreshTokenDto refreshTokenDto)
     {
-        var user = await _usersService.GetByIdAsync(userId);
-        if (user == null)
-            return Problem(detail: "User was not found", statusCode: 404);
-        
-        return Ok(_mapper.Map<UserProfileViewModel>(user));
-    }
+        var user = await _usersService.GetByIdAsync(refreshTokenDto.UserId);
+        if (user == null) return Problem("User was not found", statusCode: 404);
 
-    [AuthorizeAsCurrentUser("userId")]
-    [HttpPut("account/{userId:guid}")]
-    public async Task<IActionResult> Update(Guid userId, UpdateUserDto updateUserDto)
-    {
-        var user = await _usersService.GetByIdAsync(userId);
-        if (user == null)
-            return Problem(detail: "User was not found", statusCode: 404);
-        
-        if (!await _usersService.VerifyPasswordAsync(user, updateUserDto.CurrentPassword))
-            return Problem($"Current user has not permission to update user with id {userId}", statusCode:StatusCodes.Status403Forbidden);
+        var result = await _authenticationService.RefreshAccessTokenAsync(user, refreshTokenDto.RefreshToken);
 
-        var updateUser = _mapper.Map<UserModel>(updateUserDto);
-        updateUser.Id = userId;
+        if (!result.HasValue)
+            return Unauthorized();
         
-        var result = await _usersService.UpdateAsync(updateUser);
-        
-        if (result.IsSuccessful)
-            return Ok(_mapper.Map<UserViewModel>(result.Result));
-        
-        return StatusCode(result.Status, new ProblemDetails
+        return Ok(new AuthenticationResponse
         {
-            Detail = "Update was not successful",
-            Status = result.Status,
-            Extensions = new Dictionary<string, object?>
-            {
-                { "errors", result.Errors }
-            }
-        });
-    }
-
-    [AuthorizeAsCurrentUser("userId")]
-    [HttpPatch("account/{userId:guid}/password")]
-    public async Task<IActionResult> UpdatePassword(Guid userId, UpdateUserPasswordDto userPasswordDto)
-    {
-        var user = await _usersService.GetByIdAsync(userId);
-        if (user == null)
-            return Problem(detail: "User was not found", statusCode: 404);
-
-        var result =
-            await _usersService.UpdateUserPassword(user, userPasswordDto.CurrentPassword,
-                userPasswordDto.NewPassword);
-        
-        if (result.IsSuccessful)
-            return Ok(_mapper.Map<UserViewModel>(result.Result));
-        
-        return StatusCode(result.Status, new ProblemDetails
-        {
-            Detail = "Deletion was not successful",
-            Status = result.Status,
-            Extensions = new Dictionary<string, object?>
-            {
-                { "errors", result.Errors }
-            }
-        });
-    }
-
-    [AuthorizeAsCurrentUser("userId")]
-    [HttpDelete("account/{userId:guid}")]
-    public async Task<IActionResult> Delete(Guid userId, DeleteAccountRequestDto deleteRequestDto)
-    {
-        var user = await _usersService.GetByIdAsync(userId);
-        if (user == null)
-            return Problem(detail: "User was not found", statusCode: 404);
-        
-        if (!await _usersService.VerifyPasswordAsync(user, deleteRequestDto.Password))
-            return Problem($"Current user has not permission to delete user with id {userId}", statusCode:StatusCodes.Status403Forbidden);
-        
-        var result = await _usersService.DeleteAsync(user);
-
-        if (result.IsSuccessful)
-            return Ok(_mapper.Map<UserViewModel>(result.Result));
-        
-        return StatusCode(result.Status, new ProblemDetails
-        {
-            Detail = "Deletion was not successful",
-            Status = result.Status,
-            Extensions = new Dictionary<string, object?>
-            {
-                { "errors", result.Errors }
-            }
+            UserId = user.Id,
+            AccessToken = result.Value.AccessToken,
+            RefreshToken = result.Value.RefreshToken
         });
     }
 }

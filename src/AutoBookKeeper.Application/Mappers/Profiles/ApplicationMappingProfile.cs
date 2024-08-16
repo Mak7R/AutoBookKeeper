@@ -17,17 +17,24 @@ public class ApplicationMappingProfile : Profile
 
     private void CreateRoleMaps()
     {
-        CreateMap<Role, RoleModel>().ReverseMap();
+        CreateMap<BookRole, RoleModel>().ReverseMap();
     }
 
     private void CreateTransactionTypeMaps()
     {
-        CreateMap<TransactionType, TransactionTypeModel>().ReverseMap();
+        CreateMap<TransactionType, TransactionTypeModel>()
+            .ReverseMap()
+            .ForMember(dest => dest.BookId, opt => opt.MapFrom(src => src.Book.Id))
+            .ForMember(dest => dest.Book, opt => opt.Ignore());
     }
 
     private void CreateTransactionMaps()
     {
-        CreateMap<Transaction, TransactionModel>().ReverseMap();
+        CreateMap<Transaction, TransactionModel>()
+            .AfterMap((src, dest) => { dest.Book ??= new BookModel { Id = src.BookId }; })
+            .ReverseMap()
+            .ForMember(dest => dest.BookId, opt => opt.MapFrom(src => src.Book.Id))
+            .ForMember(dest => dest.Book, opt => opt.Ignore());
     }
 
     private void CreateBookMaps()

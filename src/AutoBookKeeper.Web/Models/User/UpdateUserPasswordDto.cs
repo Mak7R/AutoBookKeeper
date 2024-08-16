@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AutoBookKeeper.Web.Models.User;
+using static AutoBookKeeper.Core.Rules.UserRules;
 
-using static AutoBookKeeper.Core.Rules.Length.UserStrings;
+namespace AutoBookKeeper.Web.Models.User;
 
 public class UpdateUserPasswordDto
 {

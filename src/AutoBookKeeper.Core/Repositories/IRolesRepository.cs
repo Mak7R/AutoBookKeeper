@@ -3,7 +3,7 @@ using AutoBookKeeper.Core.Repositories.Base;
 
 namespace AutoBookKeeper.Core.Repositories;
 
-public interface IRolesRepository : IRepository<Role, Guid>
+public interface IRolesRepository : IRepository<BookRole, Guid>
 {
     
 }

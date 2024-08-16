@@ -6,11 +6,12 @@ namespace AutoBookKeeper.Core.Specifications;
 
 public class BookSpecification : BaseSpecification<Book>
 {
-    public BookSpecification()
+    private BookSpecification(Expression<Func<Book, bool>> criteria) : base(criteria)
     {
     }
-    
-    public BookSpecification(Expression<Func<Book, bool>> criteria) : base(criteria)
+
+    public static BookSpecification GetUserBooks(Guid userId)
     {
+        return new BookSpecification(b => b.OwnerId == userId);
     }
 }

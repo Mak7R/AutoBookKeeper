@@ -6,9 +6,9 @@ using Microsoft.Extensions.Logging;
 
 namespace AutoBookKeeper.Infrastructure.Repositories;
 
-public class RolesRepository : Repository<Role, Guid>, IRolesRepository
+public class RolesRepository : Repository<BookRole, Guid>, IRolesRepository
 {
-    public RolesRepository(ApplicationDbContext dbContext, ILogger<Repository<Role, Guid>> logger) : base(dbContext, logger)
+    public RolesRepository(ApplicationDbContext dbContext, ILogger<Repository<BookRole, Guid>> logger) : base(dbContext, logger)
     {
     }
 }

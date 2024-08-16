@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using static AutoBookKeeper.Core.Rules.Length.UserStrings;
+
+using static AutoBookKeeper.Core.Rules.UserRules;
 
 namespace AutoBookKeeper.Web.Models.User;
 

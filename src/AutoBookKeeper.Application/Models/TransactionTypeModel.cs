@@ -8,5 +8,5 @@ public class TransactionTypeModel : BaseModel<Guid>
     
     public string? Description { get; set; }
     
-    public Guid BookId { get; set; }
+    public BookModel Book { get; set; }
 }

@@ -1,6 +1,7 @@
 using AutoBookKeeper.Application.Interfaces;
 using AutoBookKeeper.Application.Models;
 using AutoBookKeeper.Web.Controllers.Base;
+using AutoBookKeeper.Web.Extensions;
 using AutoBookKeeper.Web.Filters;
 using AutoBookKeeper.Web.Models.Book;
 using AutoMapper;
@@ -40,15 +41,7 @@ public class BooksController : ApiController
         if (result.IsSuccessful)
             return CreatedAtAction("Get", "Books", new {bookId = result.Result?.Id}, _mapper.Map<BookViewModel>(result.Result));
         
-        return StatusCode(result.Status, new ProblemDetails
-        {
-            Detail = "Update was not successful",
-            Status = result.Status,
-            Extensions = new Dictionary<string, object?>
-            {
-                { "errors", result.Errors }
-            }
-        });
+        return this.ProblemResult(result, "Create operation was not successful");
     }
     
     [AuthorizeAsBookOwner("bookId")]
@@ -62,21 +55,31 @@ public class BooksController : ApiController
             
         return Ok(_mapper.Map<BookViewModel>(book));
     }
-    
-    
 
-    [AuthorizeAsCurrentUser("userId")]
+    [AuthorizeAsBookOwner("bookId")]
     [HttpPut("users/books/{bookId:guid}")]
-    public async Task<IActionResult> Update(Guid bookId /* dto */)
+    public async Task<IActionResult> Update(Guid bookId, UpdateBookDto updateBookDto)
     {
-        throw new NotImplementedException();
+        var updateBook = _mapper.Map<BookModel>(updateBookDto);
+        updateBook.Id = bookId;
+        
+        var result = await _booksService.UpdateAsync(updateBook);
+
+        if (result.IsSuccessful)
+            return Ok(_mapper.Map<BookViewModel>(result.Result));
+
+        return this.ProblemResult(result, "Update operation was not successful");
     }
 
-
-    [AuthorizeAsBookOwner("userId")]
+    [AuthorizeAsBookOwner("bookId")]
     [HttpDelete("users/books/{bookId:guid}")]
     public async Task<IActionResult> Delete(Guid bookId)
     {
-        throw new NotImplementedException();
+        var result = await _booksService.DeleteAsync(new BookModel { Id = bookId });
+
+        if (result.IsSuccessful)
+            return Ok(_mapper.Map<BookViewModel>(result.Result));
+
+        return this.ProblemResult(result, "Delete operation was not successful");
     }
 }

@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using static AutoBookKeeper.Core.Rules.Length.UserStrings;
 
-namespace AutoBookKeeper.Web.Models.User;
+using static AutoBookKeeper.Core.Rules.UserRules;
+
+namespace AutoBookKeeper.Web.Models.Account;
 
 public class LoginDto
 {

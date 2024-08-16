@@ -9,7 +9,7 @@ public class AuthorizeAsBookOwner : AuthorizeAsAttribute
     {
     }
     
-    private static Func<HttpContext, Task<bool>> GetValidator(string userIdRoute)
+    private static Func<HttpContext, Task<bool>> GetValidator(string bookIdRoute)
     {
         return async context =>
         {
@@ -17,7 +17,7 @@ public class AuthorizeAsBookOwner : AuthorizeAsAttribute
             
             var currentUserIdString =
                 context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            var bookIdString = context.Request.RouteValues[userIdRoute]?.ToString();
+            var bookIdString = context.Request.RouteValues[bookIdRoute]?.ToString();
 
             if (!Guid.TryParse(bookIdString, out var bookId))
                 return false;

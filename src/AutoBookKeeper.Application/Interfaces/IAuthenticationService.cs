@@ -4,5 +4,7 @@ namespace AutoBookKeeper.Application.Interfaces;
 
 public interface IAuthenticationService
 {
-    string GenerateToken(UserModel user);
+    Task<(string AccessToken, string RefreshToken)?> GenerateTokenAsync(UserModel user);
+
+    Task<(string AccessToken, string RefreshToken)?> RefreshAccessTokenAsync(UserModel user, string refreshToken);
 }

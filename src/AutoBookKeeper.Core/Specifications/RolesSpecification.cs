@@ -4,13 +4,13 @@ using AutoBookKeeper.Core.Specifications.Base;
 
 namespace AutoBookKeeper.Core.Specifications;
 
-public class RolesSpecification : BaseSpecification<Role>
+public class RolesSpecification : BaseSpecification<BookRole>
 {
     public RolesSpecification()
     {
     }
     
-    public RolesSpecification(Expression<Func<Role, bool>> criteria) : base(criteria)
+    public RolesSpecification(Expression<Func<BookRole, bool>> criteria) : base(criteria)
     {
     }
 }
