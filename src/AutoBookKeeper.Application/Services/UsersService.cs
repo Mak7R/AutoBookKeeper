@@ -1,3 +1,4 @@
+using System.Collections;
 using AutoBookKeeper.Application.Exceptions;
 using AutoBookKeeper.Application.Interfaces;
 using AutoBookKeeper.Application.Mappers;
@@ -80,7 +81,7 @@ public class UsersService : IUsersService
         userEntity.PasswordHash = passwordHash;
 
         if ((await _usersRepository.GetAsync(UserSpecification.GetByName(user.UserName))).Any())
-            return AlreadyExistsResult("User with this name already exists");
+            return AlreadyExistsResult(new Dictionary<string, IEnumerable<object>>{{nameof(user.UserName), ["User with this name already exists"]}});
         
         // todo check is this email already exists
         
@@ -99,7 +100,7 @@ public class UsersService : IUsersService
             userEntity.UserName = user.UserName;
             
             if ((await _usersRepository.GetAsync(UserSpecification.GetByName(user.UserName))).Any())
-                return AlreadyExistsResult("User with this name already exists");
+                return AlreadyExistsResult(new Dictionary<string, IEnumerable<object>>{{nameof(user.UserName), ["User with this name already exists"]}});
         }
 
         if (!string.IsNullOrWhiteSpace(user.Email))
@@ -120,7 +121,7 @@ public class UsersService : IUsersService
         if (userEntity == null) return NotFoundResult();
 
         if (!VerifyPassword(userEntity, currentPassword))
-            return OperationResult<UserModel>.FromErrors(400, ["Invalid password"]);
+            return new OperationResult<UserModel>{Status = 400, Errors = new Dictionary<string, IEnumerable<object>>{{"password", new[] { "Password is wrong" }}}};
         
         userEntity.PasswordHash = _passwordHasher.HashPassword(newPassword);
         
@@ -141,14 +142,10 @@ public class UsersService : IUsersService
 
     private static OperationResult<UserModel> MappedRepositoryResult(OperationResult<User> repositoryResult) => 
         repositoryResult.ToOperationResult(ApplicationMapper.Mapper.Map<UserModel>);
-    
-    private static OperationResult<UserModel> NotFoundResult(params string[] errors) => 
-        errors.Length > 0 ? 
-            new OperationResult<UserModel> {Status = 404, Exception = new NotFoundException(errors[0]), Errors = errors} : 
-            new OperationResult<UserModel> {Status = 404, Exception = new NotFoundException("User was not found"), Errors = ["User was not found"]};
 
-    private static OperationResult<UserModel> AlreadyExistsResult(params string[] errors) => 
-        errors.Length > 0 ? 
-            new OperationResult<UserModel> {Status = 400, Exception = new AlreadyExistsException(errors[0]), Errors = errors} : 
-            new OperationResult<UserModel> {Status = 400, Exception = new AlreadyExistsException("User already exists"), Errors = ["User already exists"]};
+    private static OperationResult<UserModel> NotFoundResult() =>
+        new () { Status = 404, Exception = new NotFoundException("User was not found") };
+
+    private static OperationResult<UserModel> AlreadyExistsResult(IDictionary<string, IEnumerable<object>> errors) =>
+        new() { Status = 400, Exception = new AlreadyExistsException("User already exists"), Errors = errors };
 }

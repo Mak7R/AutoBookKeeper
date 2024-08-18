@@ -60,12 +60,12 @@ public class Repository<TEntity, TId> : IRepository<TEntity, TId>
         {
             await DbContext.Set<TEntity>().AddAsync(entity);
             await DbContext.SaveChangesAsync();
-            return OperationResult<TEntity>.FromResult(entity);
+            return OperationResult<TEntity>.Ok(entity);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Error was occured while creating entity {entity}", entity);
-            return OperationResult<TEntity>.FromException(new DataBaseException("Error was occured while creating entity", e));
+            return OperationResult<TEntity>.ServerError(new DataBaseException("Error was occured while creating entity", e));
         }
     }
 
@@ -75,12 +75,12 @@ public class Repository<TEntity, TId> : IRepository<TEntity, TId>
         {
             DbContext.Entry(entity).State = EntityState.Modified;
             await DbContext.SaveChangesAsync();
-            return OperationResult<TEntity>.FromResult(entity);
+            return OperationResult<TEntity>.Ok(entity);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Error was occured while updating entity {entity}", entity);
-            return OperationResult<TEntity>.FromException(new DataBaseException("Error was occured while updating entity", e));
+            return OperationResult<TEntity>.ServerError(new DataBaseException("Error was occured while updating entity", e));
         }
     }
 
@@ -90,12 +90,12 @@ public class Repository<TEntity, TId> : IRepository<TEntity, TId>
         {
             DbContext.Set<TEntity>().Remove(entity);
             await DbContext.SaveChangesAsync();
-            return OperationResult<TEntity>.FromResult(entity);
+            return OperationResult<TEntity>.Ok(entity);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Error was occured while deleting entity {entity}", entity);
-            return OperationResult<TEntity>.FromException(new DataBaseException("Error was occured while deleting entity", e));
+            return OperationResult<TEntity>.ServerError(new DataBaseException("Error was occured while deleting entity", e));
         }
     }
 }

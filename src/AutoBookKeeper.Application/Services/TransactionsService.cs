@@ -88,13 +88,6 @@ public class TransactionsService : ITransactionsService
     private static OperationResult<TransactionModel> MappedRepositoryResult(OperationResult<Transaction> repositoryResult) => 
         repositoryResult.ToOperationResult(ApplicationMapper.Mapper.Map<TransactionModel>);
     
-    private static OperationResult<TransactionModel> NotFoundResult(params string[] errors) => 
-        errors.Length > 0 ? 
-            new OperationResult<TransactionModel> {Status = 404, Exception = new NotFoundException(errors[0]), Errors = errors} : 
-            new OperationResult<TransactionModel> {Status = 404, Exception = new NotFoundException("Transaction was not found"), Errors = ["Transaction was not found"]};
-
-    private static OperationResult<TransactionModel> AlreadyExistsResult(params string[] errors) => 
-        errors.Length > 0 ? 
-            new OperationResult<TransactionModel> {Status = 400, Exception = new AlreadyExistsException(errors[0]), Errors = errors} : 
-            new OperationResult<TransactionModel> {Status = 400, Exception = new AlreadyExistsException("Transaction already exists"), Errors = ["Transaction already exists"]};
+    private static OperationResult<TransactionModel> NotFoundResult() => 
+        new () {Status = 404, Exception = new NotFoundException("Transaction was not found")};
 }

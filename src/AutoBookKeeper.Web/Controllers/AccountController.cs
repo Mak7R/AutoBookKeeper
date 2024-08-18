@@ -1,6 +1,7 @@
 using AutoBookKeeper.Application.Interfaces;
 using AutoBookKeeper.Application.Models;
 using AutoBookKeeper.Web.Controllers.Base;
+using AutoBookKeeper.Web.Extensions;
 using AutoBookKeeper.Web.Models.Account;
 using AutoBookKeeper.Web.Models.User;
 using AutoMapper;
@@ -24,7 +25,7 @@ public class AccountController : ApiController
         _mapper = mapper;
     }
     
-    [HttpPost("/register")]
+    [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterDto registerDto)
     {
         var user = _mapper.Map<UserModel>(registerDto);
@@ -32,19 +33,11 @@ public class AccountController : ApiController
 
         if (result.IsSuccessful)
             return Ok(_mapper.Map<UserViewModel>(result.Result));
-        
-        return StatusCode(result.Status, new ProblemDetails
-        {
-            Detail = "Registration was not successful",
-            Status = result.Status,
-            Extensions = new Dictionary<string, object?>
-            {
-                { "errors", result.Errors }
-            }
-        });
+
+        return this.ProblemResult(result, "Registration was not successful");
     }
     
-    [HttpPost("/login")]
+    [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto loginDto)
     {
         var user = await _usersService.GetByUserNameAsync(loginDto.UserName);
@@ -67,7 +60,7 @@ public class AccountController : ApiController
         });
     }
 
-    [HttpPost("/refresh-token")]
+    [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken(RefreshTokenDto refreshTokenDto)
     {
         var user = await _usersService.GetByIdAsync(refreshTokenDto.UserId);

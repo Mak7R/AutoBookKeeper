@@ -77,14 +77,7 @@ public class TransactionTypesService : ITransactionTypesService
     
     private static OperationResult<TransactionTypeModel> MappedRepositoryResult(OperationResult<TransactionType> repositoryResult) => 
         repositoryResult.ToOperationResult(ApplicationMapper.Mapper.Map<TransactionTypeModel>);
-    
-    private static OperationResult<TransactionTypeModel> NotFoundResult(params string[] errors) => 
-        errors.Length > 0 ? 
-            new OperationResult<TransactionTypeModel> {Status = 404, Exception = new NotFoundException(errors[0]), Errors = errors} : 
-            new OperationResult<TransactionTypeModel> {Status = 404, Exception = new NotFoundException("Transaction type was not found"), Errors = ["Transaction type was not found"]};
 
-    private static OperationResult<TransactionTypeModel> AlreadyExistsResult(params string[] errors) => 
-        errors.Length > 0 ? 
-            new OperationResult<TransactionTypeModel> {Status = 400, Exception = new AlreadyExistsException(errors[0]), Errors = errors} : 
-            new OperationResult<TransactionTypeModel> {Status = 400, Exception = new AlreadyExistsException("Transaction type already exists"), Errors = ["Transaction type already exists"]};
+    private static OperationResult<TransactionTypeModel> NotFoundResult() =>
+        new () {Status = 404, Exception = new NotFoundException("Transaction type was not found")};
 }

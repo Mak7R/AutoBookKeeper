@@ -81,13 +81,6 @@ public class BooksService : IBooksService
     private static OperationResult<BookModel> MappedRepositoryResult(OperationResult<Book> repositoryResult) => 
         repositoryResult.ToOperationResult(ApplicationMapper.Mapper.Map<BookModel>);
     
-    private static OperationResult<BookModel> NotFoundResult(params string[] errors) => 
-        errors.Length > 0 ? 
-            new OperationResult<BookModel> {Status = 404, Exception = new NotFoundException(errors[0]), Errors = errors} : 
-            new OperationResult<BookModel> {Status = 404, Exception = new NotFoundException("Book was not found"), Errors = ["Book was not found"]};
-
-    private static OperationResult<BookModel> AlreadyExistsResult(params string[] errors) => 
-        errors.Length > 0 ? 
-            new OperationResult<BookModel> {Status = 400, Exception = new AlreadyExistsException(errors[0]), Errors = errors} : 
-            new OperationResult<BookModel> {Status = 400, Exception = new AlreadyExistsException("Book already exists"), Errors = ["Book already exists"]};
+    private static OperationResult<BookModel> NotFoundResult() => 
+        new () {Status = 404, Exception = new NotFoundException("Book was not found")};
 }

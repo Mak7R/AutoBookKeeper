@@ -26,7 +26,7 @@ public static class ControllerBaseExtensions
     {
         if (!result.Errors.Any())
             return controller.Problem(detail: result.Exception?.Message, statusCode: result.Status, title:title);
-
+        
         if (result.Exception != null)
         {
             return controller.StatusCode(result.Status, new ProblemDetails
@@ -42,7 +42,7 @@ public static class ControllerBaseExtensions
         {
             Status = result.Status,
             Title = title,
-            Detail = result.Errors.FirstOrDefault(),
+            Detail = result.Errors.FirstOrDefault().Value?.ToString(),
             Extensions = new Dictionary<string, object?>{{"errors", result.Errors}}
         });
     }
