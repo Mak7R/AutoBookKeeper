@@ -12,9 +12,10 @@ public class ApplicationDbContext : DbContext
 {
     public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<Book> Books { get; set; }
-    public virtual DbSet<Role> Roles { get; set; }
+    public virtual DbSet<BookRole> Roles { get; set; }
     public virtual DbSet<Transaction> Transactions { get; set; }
     public virtual DbSet<TransactionType> TransactionTypes { get; set; }
+    public virtual DbSet<UserToken> UserTokens { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     { 

@@ -26,73 +26,76 @@ public class Repository<TEntity, TId> : IRepository<TEntity, TId>
         return SpecificationEvaluator<TEntity, TId>.GetQuery(DbContext.Set<TEntity>().AsNoTracking().AsQueryable(), spec);
     }
     
-    public async Task<IReadOnlyList<TEntity>> GetAllAsync()
+    public virtual async Task<IReadOnlyList<TEntity>> GetAllAsync()
     {
         return await DbContext.Set<TEntity>().ToListAsync();
     }
 
-    public async Task<IReadOnlyList<TEntity>> GetAsync(ISpecification<TEntity> spec)
+    public virtual async Task<IReadOnlyList<TEntity>> GetAsync(ISpecification<TEntity> spec)
     {
         return await ApplySpecification(spec).ToListAsync();
     }
 
-    public async Task<int> CountAsync()
+    public virtual async Task<int> CountAsync()
     {
         return await DbContext.Set<TEntity>().CountAsync();
     }
     
-    public async Task<int> CountAsync(ISpecification<TEntity> spec)
+    public virtual async Task<int> CountAsync(ISpecification<TEntity> spec)
     {
         return await ApplySpecification(spec).CountAsync();
     }
     
-    public async Task<TEntity?> GetByIdAsync(TId id)
+    public virtual async Task<TEntity?> GetByIdAsync(TId id)
     {
-        return await DbContext.Set<TEntity>().AsNoTracking().SingleOrDefaultAsync();
+        return await DbContext.Set<TEntity>()
+            .AsNoTracking()
+            .Where(e => e.Id != null && e.Id.Equals(id))
+            .SingleOrDefaultAsync();
     }
 
-    public async Task<OperationResult<TEntity>> CreateAsync(TEntity entity)
+    public virtual async Task<OperationResult<TEntity>> CreateAsync(TEntity entity)
     {
         try
         {
             await DbContext.Set<TEntity>().AddAsync(entity);
             await DbContext.SaveChangesAsync();
-            return OperationResult<TEntity>.FromResult(entity);
+            return OperationResult<TEntity>.Ok(entity);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Error was occured while creating entity {entity}", entity);
-            return OperationResult<TEntity>.FromException(new DataBaseException("Error was occured while creating entity", e));
+            return OperationResult<TEntity>.ServerError(new DataBaseException("Error was occured while creating entity", e));
         }
     }
 
-    public async Task<OperationResult<TEntity>> UpdateAsync(TEntity entity)
+    public virtual async Task<OperationResult<TEntity>> UpdateAsync(TEntity entity)
     {
         try
         {
             DbContext.Entry(entity).State = EntityState.Modified;
             await DbContext.SaveChangesAsync();
-            return OperationResult<TEntity>.FromResult(entity);
+            return OperationResult<TEntity>.Ok(entity);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Error was occured while updating entity {entity}", entity);
-            return OperationResult<TEntity>.FromException(new DataBaseException("Error was occured while updating entity", e));
+            return OperationResult<TEntity>.ServerError(new DataBaseException("Error was occured while updating entity", e));
         }
     }
 
-    public async Task<OperationResult<TEntity>> DeleteAsync(TEntity entity)
+    public virtual async Task<OperationResult<TEntity>> DeleteAsync(TEntity entity)
     {
         try
         {
             DbContext.Set<TEntity>().Remove(entity);
             await DbContext.SaveChangesAsync();
-            return OperationResult<TEntity>.FromResult(entity);
+            return OperationResult<TEntity>.Ok(entity);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Error was occured while deleting entity {entity}", entity);
-            return OperationResult<TEntity>.FromException(new DataBaseException("Error was occured while deleting entity", e));
+            return OperationResult<TEntity>.ServerError(new DataBaseException("Error was occured while deleting entity", e));
         }
     }
 }

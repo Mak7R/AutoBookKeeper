@@ -47,10 +47,15 @@ namespace AutoBookKeeper.Web.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Books");
+                    b.HasIndex("Title");
+
+                    b.ToTable("Book", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_MinLength_Title", "LENGTH(\"Title\") >= 3");
+                        });
                 });
 
-            modelBuilder.Entity("AutoBookKeeper.Core.Entities.Role", b =>
+            modelBuilder.Entity("AutoBookKeeper.Core.Entities.BookRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -71,7 +76,12 @@ namespace AutoBookKeeper.Web.Migrations
 
                     b.HasIndex("BookId");
 
-                    b.ToTable("Roles");
+                    b.HasIndex("Name", "BookId");
+
+                    b.ToTable("BookRole", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_MinLength_Name", "LENGTH(\"Name\") >= 16");
+                        });
                 });
 
             modelBuilder.Entity("AutoBookKeeper.Core.Entities.Transaction", b =>
@@ -89,22 +99,26 @@ namespace AutoBookKeeper.Web.Migrations
 
                     b.Property<string>("NameIdentifier")
                         .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<DateTime>("TransactionTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("TypeId")
-                        .HasColumnType("uuid");
+                    b.Property<decimal>("Value")
+                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
                     b.HasIndex("BookId");
 
-                    b.HasIndex("TypeId");
+                    b.HasIndex("NameIdentifier")
+                        .IsUnique();
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transaction", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_MinLength_NameIdentifier", "LENGTH(\"NameIdentifier\") >= 4");
+                        });
                 });
 
             modelBuilder.Entity("AutoBookKeeper.Core.Entities.TransactionType", b =>
@@ -127,9 +141,13 @@ namespace AutoBookKeeper.Web.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BookId");
+                    b.HasIndex("BookId", "Name")
+                        .IsUnique();
 
-                    b.ToTable("TransactionTypes");
+                    b.ToTable("TransactionType", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_MinLength_Name", "LENGTH(\"Name\") >= 2");
+                        });
                 });
 
             modelBuilder.Entity("AutoBookKeeper.Core.Entities.User", b =>
@@ -145,19 +163,53 @@ namespace AutoBookKeeper.Web.Migrations
                     b.Property<bool>("IsEmailConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.HasIndex("UserName")
+                        .IsUnique();
+
+                    b.ToTable("ApplicationUser", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_MinLength_UserName", "LENGTH(\"UserName\") >= 4");
+                        });
+                });
+
+            modelBuilder.Entity("AutoBookKeeper.Core.Entities.UserToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ExpirationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpirationTime");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserToken", (string)null);
                 });
 
             modelBuilder.Entity("AutoBookKeeper.Core.Entities.Book", b =>
@@ -171,7 +223,7 @@ namespace AutoBookKeeper.Web.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("AutoBookKeeper.Core.Entities.Role", b =>
+            modelBuilder.Entity("AutoBookKeeper.Core.Entities.BookRole", b =>
                 {
                     b.HasOne("AutoBookKeeper.Core.Entities.Book", "Book")
                         .WithMany()
@@ -190,15 +242,7 @@ namespace AutoBookKeeper.Web.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AutoBookKeeper.Core.Entities.TransactionType", "Type")
-                        .WithMany()
-                        .HasForeignKey("TypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Book");
-
-                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("AutoBookKeeper.Core.Entities.TransactionType", b =>
@@ -210,6 +254,17 @@ namespace AutoBookKeeper.Web.Migrations
                         .IsRequired();
 
                     b.Navigation("Book");
+                });
+
+            modelBuilder.Entity("AutoBookKeeper.Core.Entities.UserToken", b =>
+                {
+                    b.HasOne("AutoBookKeeper.Core.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

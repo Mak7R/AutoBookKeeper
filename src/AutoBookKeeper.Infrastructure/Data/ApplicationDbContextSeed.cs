@@ -12,11 +12,11 @@ public class ApplicationDbContextSeed
     { 
         try
         {
-            //await dbContext.Database.EnsureCreatedAsync();
+            // await dbContext.Database.EnsureCreatedAsync();
             if (dbContext.Database.IsRelational()) 
                 await dbContext.Database.MigrateAsync();
 
-            await SeedUsersAsync(dbContext);
+            // seed data async
         }
         catch (Exception exception)
         {
@@ -28,10 +28,5 @@ public class ApplicationDbContextSeed
             else
                 throw;
         }
-    }
-
-    private static async Task SeedUsersAsync(ApplicationDbContext dbContext)
-    {
-        // seed users
     }
 }

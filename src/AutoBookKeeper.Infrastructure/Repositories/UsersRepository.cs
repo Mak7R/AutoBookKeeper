@@ -1,4 +1,5 @@
 ﻿using AutoBookKeeper.Core.Entities;
+using AutoBookKeeper.Core.Models;
 using AutoBookKeeper.Core.Repositories;
 using AutoBookKeeper.Infrastructure.Data;
 using AutoBookKeeper.Infrastructure.Repositories.Base;

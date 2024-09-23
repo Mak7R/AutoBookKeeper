@@ -7,13 +7,13 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/AutoBookKeeper.Web/AutoBookKeeper.Web.csproj", "AutoBookKeeper.Web/"]
-COPY ["src/AutoBookKeeper.Application/AutoBookKeeper.Application.csproj", "AutoBookKeeper.Application/"]
-COPY ["src/AutoBookKeeper.Core/AutoBookKeeper.Core.csproj", "AutoBookKeeper.Core/"]
-COPY ["src/AutoBookKeeper.Infrastructure/AutoBookKeeper.Infrastructure.csproj", "AutoBookKeeper.Infrastructure/"]
+COPY ["src/AutoBookKeeper.Web/AutoBookKeeper.Web.csproj", "src/AutoBookKeeper.Web/"]
+COPY ["src/AutoBookKeeper.Application/AutoBookKeeper.Application.csproj", "src/AutoBookKeeper.Application/"]
+COPY ["src/AutoBookKeeper.Core/AutoBookKeeper.Core.csproj", "src/AutoBookKeeper.Core/"]
+COPY ["src/AutoBookKeeper.Infrastructure/AutoBookKeeper.Infrastructure.csproj", "src/AutoBookKeeper.Infrastructure/"]
 RUN dotnet restore "src/AutoBookKeeper.Web/AutoBookKeeper.Web.csproj"
 COPY . .
-WORKDIR "/src/AutoBookKeeper.Web"
+WORKDIR "/src/src/AutoBookKeeper.Web"
 RUN dotnet build "AutoBookKeeper.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish

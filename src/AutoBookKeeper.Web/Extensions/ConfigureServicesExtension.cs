@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using AutoBookKeeper.Application.Interfaces;
 using AutoBookKeeper.Application.Services;
@@ -5,6 +6,7 @@ using AutoBookKeeper.Core.Configuration;
 using AutoBookKeeper.Core.Repositories;
 using AutoBookKeeper.Infrastructure.Data;
 using AutoBookKeeper.Infrastructure.Repositories;
+using AutoBookKeeper.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -88,39 +90,7 @@ public static class ConfigureServicesExtension
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                var jwtOptions = configuration.GetSection("JwtAuthentication").Get<JwtAuthenticationOptions>();
-                var tokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions?.SecretKey ??
-                        throw new NullReferenceException("SecretKey can't be null")))
-                };
-
-                if (string.IsNullOrWhiteSpace(jwtOptions.Audience))
-                {
-                    tokenValidationParameters.ValidateAudience = false;
-                }
-                else
-                {
-                    tokenValidationParameters.ValidateAudience = true;
-                    tokenValidationParameters.ValidAudience = jwtOptions.Audience;
-                }
-
-                if (string.IsNullOrWhiteSpace(jwtOptions.Issuer))
-                {
-                    tokenValidationParameters.ValidateIssuer = false;
-                }
-                else
-                {
-                    tokenValidationParameters.ValidateIssuer = true;
-                    tokenValidationParameters.ValidIssuer = jwtOptions.Issuer;
-                }
-
-                options.TokenValidationParameters = tokenValidationParameters;
-            });
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options => options.SetupDefaultConfig(configuration));
         
         services.AddApiVersioning(config =>
         {
@@ -128,18 +98,48 @@ public static class ConfigureServicesExtension
             config.DefaultApiVersion = new ApiVersion(1, 0);
             config.AssumeDefaultVersionWhenUnspecified = true;
         });
+        
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(builder =>
+            {
+                builder.WithOrigins(configuration.GetSection("AllowedOrigins").Get<string[]>() ??
+                                    throw new InvalidOperationException("AllowedOrigins was not found"));
+                builder.WithHeaders(configuration.GetSection("AllowedHeaders").Get<string[]>() ??
+                                    throw new InvalidOperationException("AllowedHeaders was not found"));
+                builder.WithMethods(configuration.GetSection("AllowedMethods").Get<string[]>() ??
+                                    throw new InvalidOperationException("AllowedMethods was not found"));
+            });
+        });
     }
     
     private static void ConfigureInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IUsersRepository, UsersRepository>();
+        services.AddScoped<IBooksRepository, BooksRepository>();
+        services.AddScoped<ITransactionsRepository, TransactionsRepository>();
+        services.AddScoped<ITransactionTypesRepository, TransactionTypesRepository>();
+        services.AddScoped<IRolesRepository, RolesRepository>();
+        
+        services.AddScoped<ICalculationsProvider, CalculationsProvider>();
+        services.AddScoped<IForecastProvider, ForecastProvider>();
+
     }
     
     private static void ConfigureApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddTransient<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddTransient<IAuthenticationService, JwtAuthenticationService>();
+        
         services.AddScoped<IUsersService, UsersService>();
+        services.AddScoped<IBooksService, BooksService>();
+        services.AddScoped<ITransactionsService, TransactionsService>();
+        services.AddScoped<ITransactionTypesService, TransactionTypesService>();
+        services.AddScoped<IRolesService, RolesService>();
+        services.AddScoped<IUserTokensRepository, UserTokensRepository>();
+
+        services.AddScoped<ICalculationsService, CalculationsService>();
+        services.AddScoped<IForecastService, ForecastService>();
     }
 
     private static void ConfigureOptions(this IServiceCollection services, IConfiguration configuration)
