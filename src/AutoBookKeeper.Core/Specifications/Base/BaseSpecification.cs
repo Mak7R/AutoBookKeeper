@@ -24,29 +24,29 @@ public abstract class BaseSpecification<T> : ISpecification<T>
     public int Skip { get; private set; }
     public bool IsPagingEnabled { get; private set; } = false;
 
-    protected virtual void AddInclude(Expression<Func<T, object>> includeExpression)
+    protected void AddInclude(Expression<Func<T, object>> includeExpression)
     {
         Includes.Add(includeExpression);
     }
     
-    protected virtual void AddInclude(string includeString)
+    protected void AddInclude(string includeString)
     {
         IncludeStrings.Add(includeString);
     }
     
-    protected virtual void ApplyPaging(int skip, int take)
+    protected void ApplyPaging(int skip, int take)
     {
         Skip = skip;
         Take = take;
         IsPagingEnabled = true;
     }
     
-    protected virtual void ApplyOrderBy(Expression<Func<T, object>> orderByExpression)
+    protected void ApplyOrderBy(Expression<Func<T, object>> orderByExpression)
     {
         OrderBy = orderByExpression;
     }
     
-    protected virtual void ApplyOrderByDescending(Expression<Func<T, object>> orderByDescendingExpression)
+    protected void ApplyOrderByDescending(Expression<Func<T, object>> orderByDescendingExpression)
     {
         OrderByDescending = orderByDescendingExpression;
     }

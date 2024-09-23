@@ -121,7 +121,9 @@ public static class ConfigureServicesExtension
         services.AddScoped<ITransactionTypesRepository, TransactionTypesRepository>();
         services.AddScoped<IRolesRepository, RolesRepository>();
         
-        services.AddScoped<ICalculationsService, CalculationsService>();
+        services.AddScoped<ICalculationsProvider, CalculationsProvider>();
+        services.AddScoped<IForecastProvider, ForecastProvider>();
+
     }
     
     private static void ConfigureApplicationServices(this IServiceCollection services, IConfiguration configuration)
@@ -135,6 +137,9 @@ public static class ConfigureServicesExtension
         services.AddScoped<ITransactionTypesService, TransactionTypesService>();
         services.AddScoped<IRolesService, RolesService>();
         services.AddScoped<IUserTokensRepository, UserTokensRepository>();
+
+        services.AddScoped<ICalculationsService, CalculationsService>();
+        services.AddScoped<IForecastService, ForecastService>();
     }
 
     private static void ConfigureOptions(this IServiceCollection services, IConfiguration configuration)

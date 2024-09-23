@@ -2,7 +2,7 @@
 
 services:
   web:
-    image: autobookkeeper:latest
+    image: autobookkeeper:1.0
     container_name: auto_book_keeper_app
     build:
       context: .

@@ -13,7 +13,7 @@ public class RegisterDto
     public string UserName { get; set; } = string.Empty;
     
     [StringLength(MaxEmailLength)]
-    [EmailAddress]
+    [EmailAddress] // todo should not throw error when is empty
     public string? Email { get; set; } = string.Empty;
 
     [Required]
