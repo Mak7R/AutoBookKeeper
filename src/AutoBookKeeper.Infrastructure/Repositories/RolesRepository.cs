@@ -8,7 +8,7 @@ namespace AutoBookKeeper.Infrastructure.Repositories;
 
 public class RolesRepository : Repository<BookRole, Guid>, IRolesRepository
 {
-    public RolesRepository(ApplicationDbContext dbContext, ILogger<Repository<BookRole, Guid>> logger) : base(dbContext, logger)
+    public RolesRepository(ApplicationDbContext dbContext, ILogger<RolesRepository> logger) : base(dbContext, logger)
     {
     }
 }

@@ -28,7 +28,14 @@ public class TransactionSpecification : BaseSpecification<Transaction>
             _bookId = bookId;
             return this;
         }
-        
+
+        private string? _nameIdentifier;
+        public ITransactionSpecificationBuilder ApplyNameIdentifier(string nameIdentifier)
+        {
+            _nameIdentifier = nameIdentifier;
+            return this;
+        }
+
         private (DateTime? From, DateTime? To)? _transactionDataTimeRange;
 
         public ITransactionSpecificationBuilder ApplyDataTimeRange(DateTime? from, DateTime? to)
@@ -54,6 +61,11 @@ public class TransactionSpecification : BaseSpecification<Transaction>
                 criteria = criteria.AndAlso(t => t.BookId == _bookId.Value);
             }
 
+            if (!string.IsNullOrEmpty(_nameIdentifier))
+            {
+                criteria = criteria.AndAlso(t => t.NameIdentifier == _nameIdentifier);
+            }
+            
             if (_transactionDataTimeRange.HasValue)
             {
                 var from = _transactionDataTimeRange.Value.From;

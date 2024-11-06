@@ -8,7 +8,7 @@ namespace AutoBookKeeper.Infrastructure.Repositories;
 
 public class BooksRepository : Repository<Book, Guid>, IBooksRepository
 {
-    public BooksRepository(ApplicationDbContext dbContext, ILogger<Repository<Book, Guid>> logger) : base(dbContext, logger)
+    public BooksRepository(ApplicationDbContext dbContext, ILogger<BooksRepository> logger) : base(dbContext, logger)
     {
     }
 }

@@ -9,7 +9,7 @@ namespace AutoBookKeeper.Infrastructure.Repositories;
 
 public class UserTokensRepository : Repository<UserToken, int>, IUserTokensRepository
 {
-    public UserTokensRepository(ApplicationDbContext dbContext, ILogger<Repository<UserToken, int>> logger) : base(dbContext, logger)
+    public UserTokensRepository(ApplicationDbContext dbContext, ILogger<UserTokensRepository> logger) : base(dbContext, logger)
     {
     }
     

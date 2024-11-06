@@ -41,7 +41,7 @@ public class BooksController : ApiController
         if (result.IsSuccessful)
             return CreatedAtAction("Get", "Books", new {bookId = result.Result?.Id}, _mapper.Map<BookViewModel>(result.Result));
         
-        return this.ProblemResult(result, "Create operation was not successful");
+        return this.ProblemResult(result);
     }
     
     [AuthorizeAsBookOwner("bookId")]
@@ -68,7 +68,7 @@ public class BooksController : ApiController
         if (result.IsSuccessful)
             return Ok(_mapper.Map<BookViewModel>(result.Result));
 
-        return this.ProblemResult(result, "Update operation was not successful");
+        return this.ProblemResult(result);
     }
 
     [AuthorizeAsBookOwner("bookId")]
@@ -80,6 +80,6 @@ public class BooksController : ApiController
         if (result.IsSuccessful)
             return Ok(_mapper.Map<BookViewModel>(result.Result));
 
-        return this.ProblemResult(result, "Delete operation was not successful");
+        return this.ProblemResult(result);
     }
 }

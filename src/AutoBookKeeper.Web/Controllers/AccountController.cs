@@ -34,7 +34,7 @@ public class AccountController : ApiController
         if (result.IsSuccessful)
             return Ok(_mapper.Map<UserViewModel>(result.Result));
 
-        return this.ProblemResult(result, "Registration was not successful");
+        return this.ProblemResult(result);
     }
     
     [HttpPost("login")]
@@ -47,6 +47,7 @@ public class AccountController : ApiController
         if (!await _usersService.VerifyPasswordAsync(user, loginDto.Password))
             return Problem("Invalid email or password", statusCode: 400);
         
+        // todo if user already logged in from current device Refresh access token
         var result = await _authenticationService.GenerateTokenAsync(user);
 
         if (!result.HasValue)

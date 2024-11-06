@@ -8,7 +8,6 @@ using AutoBookKeeper.Core.Configuration;
 using AutoBookKeeper.Core.Entities;
 using AutoBookKeeper.Core.Repositories;
 using AutoBookKeeper.Core.Specifications;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -17,29 +16,35 @@ namespace AutoBookKeeper.Application.Services;
 public class JwtAuthenticationService : IAuthenticationService
 {
     private readonly IUserTokensRepository _userTokensRepository;
-    private readonly IServiceScopeFactory _scopeFactory;
     private readonly JwtAuthenticationOptions _options;
 
-    public JwtAuthenticationService(IUserTokensRepository userTokensRepository, IServiceScopeFactory scopeFactory, IOptions<JwtAuthenticationOptions> options)
+    public JwtAuthenticationService(IUserTokensRepository userTokensRepository, IOptions<JwtAuthenticationOptions> options)
     {
         _userTokensRepository = userTokensRepository;
-        _scopeFactory = scopeFactory;
         _options = options.Value;
     }
 
     public async Task<(string AccessToken, string RefreshToken)?> GenerateTokenAsync(UserModel user)
     {
+        var userTokens = await _userTokensRepository.GetAsync(UserTokenSpecification.TokensByUserId(user.Id));
+
+        foreach (var userToken in userTokens)
+        {
+            if (false) // todo check device
+                return (GenerateAccessToken(user), userToken.Token);
+        }
+        
         return (GenerateAccessToken(user), await GenerateRefreshTokenAsync(user));
     }
     
     public async Task<(string AccessToken, string RefreshToken)?> RefreshAccessTokenAsync(UserModel user, string refreshToken)
     {
-        var tokens = await _userTokensRepository.GetAsync(UserTokenSpecification.TokensByUserId(user.Id));
+        var userTokens = await _userTokensRepository.GetAsync(UserTokenSpecification.TokensByUserId(user.Id));
 
-        foreach (var token in tokens)
+        foreach (var userToken in userTokens)
         {
-            if (IsValidToken(token, refreshToken))
-                return (GenerateAccessToken(user), await GenerateRefreshTokenAsync(token));
+            if (userToken.Token == refreshToken)
+                return (GenerateAccessToken(user), userToken.Token);
         }
         
         return null;
@@ -80,42 +85,14 @@ public class JwtAuthenticationService : IAuthenticationService
     private async Task<string> GenerateRefreshTokenAsync(UserModel user)
     {
         var refreshToken = GenerateRefreshToken();
-        
+
         await _userTokensRepository.CreateAsync(new UserToken
-            { UserId = user.Id, Token = refreshToken, ExpirationTime = DateTime.UtcNow.AddMinutes(_options.RefreshTokenExpirationMinutes) });
-
-        // background task for removing expired tokens // todo background task observer
-        _ = RemoveExpiredTokensBackgroundTask();
-        
-        return refreshToken;
-    }
-
-    private async Task<string> GenerateRefreshTokenAsync(UserToken token)
-    {
-        var refreshToken = GenerateRefreshToken();
-
-        token.Token = refreshToken;
-        await _userTokensRepository.UpdateAsync(token);
-        
-        // background task for removing expired tokens // todo background task observer
-        _ = RemoveExpiredTokensBackgroundTask();
-
-        return refreshToken;
-    }
-    
-    private Task RemoveExpiredTokensBackgroundTask()
-    {
-        return Task.Run(() =>
         {
-            using var scope = _scopeFactory.CreateScope();
-            var tokensRepository = scope.ServiceProvider.GetRequiredService<IUserTokensRepository>();
-            tokensRepository.RemoveExpiredTokens();
+            UserId = user.Id, Token = refreshToken,
+            ExpirationTime = DateTime.UtcNow.AddMinutes(_options.RefreshTokenExpirationMinutes)
         });
-    }
 
-    private bool IsValidToken(UserToken? userToken, string refreshToken)
-    {
-        return userToken != null && userToken.Token == refreshToken;
+        return refreshToken;
     }
 
     private string GenerateRefreshToken()

@@ -39,45 +39,38 @@ public class TransactionTypesService : ITransactionTypesService
         return ApplicationMapper.Mapper.Map<TransactionTypeModel>(transactionType);
     }
 
-    public async Task<OperationResult<TransactionTypeModel>> CreateAsync(TransactionTypeModel transactionType)
-    {
-        // todo validate
-        
-        var result = await _transactionTypesRepository.CreateAsync(ApplicationMapper.Mapper.Map<TransactionType>(transactionType));
-
-        return MappedRepositoryResult(result);
-    }
-
-    public async Task<OperationResult<TransactionTypeModel>> UpdateAsync(TransactionTypeModel transactionType)
-    {
-        var transactionTypeEntity = await _transactionTypesRepository.GetByIdAsync(transactionType.Id);
-
-        if (transactionTypeEntity == null)
-            return NotFoundResult();
-
-        var updatedTransactionType = ApplicationMapper.Mapper.Map<TransactionType>(transactionType);
-        updatedTransactionType.BookId = transactionTypeEntity.BookId;
-
-        var result = await _transactionTypesRepository.UpdateAsync(updatedTransactionType);
-
-        return MappedRepositoryResult(result);
-    }
-
-    public async Task<OperationResult<TransactionTypeModel>> DeleteAsync(TransactionTypeModel transactionType)
-    {
-        var transactionTypeEntity = await _transactionTypesRepository.GetByIdAsync(transactionType.Id);
-
-        if (transactionTypeEntity == null)
-            return NotFoundResult();
-        
-        var result = await _transactionTypesRepository.DeleteAsync(transactionTypeEntity);
-
-        return MappedRepositoryResult(result);
-    }
-    
-    private static OperationResult<TransactionTypeModel> MappedRepositoryResult(OperationResult<TransactionType> repositoryResult) => 
-        repositoryResult.ToOperationResult(ApplicationMapper.Mapper.Map<TransactionTypeModel>);
-
-    private static OperationResult<TransactionTypeModel> NotFoundResult() =>
-        new () {Status = 404, Exception = new NotFoundException("Transaction type was not found")};
+    // public async Task<OperationResult<TransactionTypeModel>> CreateAsync(TransactionTypeModel transactionType)
+    // {
+    //     
+    //     var result = await _transactionTypesRepository.CreateAsync(ApplicationMapper.Mapper.Map<TransactionType>(transactionType));
+    //
+    //     return MappedRepositoryResult(result);
+    // }
+    //
+    // public async Task<OperationResult<TransactionTypeModel>> UpdateAsync(TransactionTypeModel transactionType)
+    // {
+    //     var transactionTypeEntity = await _transactionTypesRepository.GetByIdAsync(transactionType.Id);
+    //
+    //     if (transactionTypeEntity == null)
+    //         return NotFoundResult();
+    //
+    //     var updatedTransactionType = ApplicationMapper.Mapper.Map<TransactionType>(transactionType);
+    //     updatedTransactionType.BookId = transactionTypeEntity.BookId;
+    //
+    //     var result = await _transactionTypesRepository.UpdateAsync(updatedTransactionType);
+    //
+    //     return MappedRepositoryResult(result);
+    // }
+    //
+    // public async Task<OperationResult<TransactionTypeModel>> DeleteAsync(TransactionTypeModel transactionType)
+    // {
+    //     var transactionTypeEntity = await _transactionTypesRepository.GetByIdAsync(transactionType.Id);
+    //
+    //     if (transactionTypeEntity == null)
+    //         return NotFoundResult();
+    //     
+    //     var result = await _transactionTypesRepository.DeleteAsync(transactionTypeEntity);
+    //
+    //     return MappedRepositoryResult(result);
+    // }
 }

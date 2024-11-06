@@ -8,7 +8,7 @@ namespace AutoBookKeeper.Infrastructure.Repositories;
 
 public class TransactionTypesRepository : Repository<TransactionType, Guid>, ITransactionTypesRepository
 {
-    public TransactionTypesRepository(ApplicationDbContext dbContext, ILogger<Repository<TransactionType, Guid>> logger) : base(dbContext, logger)
+    public TransactionTypesRepository(ApplicationDbContext dbContext, ILogger<TransactionTypesRepository> logger) : base(dbContext, logger)
     {
     }
 }

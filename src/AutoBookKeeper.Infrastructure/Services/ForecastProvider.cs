@@ -2,19 +2,23 @@ using AutoBookKeeper.Application.Interfaces;
 using AutoBookKeeper.Core.Entities;
 using AutoBookKeeper.Core.Specifications.Base;
 using AutoBookKeeper.Infrastructure.Data;
+using AutoBookKeeper.Infrastructure.Helpers;
 using AutoBookKeeper.Infrastructure.Repositories.Base;
 using MathNet.Numerics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace AutoBookKeeper.Infrastructure.Services;
 
 public class ForecastProvider : IForecastProvider
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly ILogger<ForecastProvider> _logger;
 
-    public ForecastProvider(ApplicationDbContext dbContext)
+    public ForecastProvider(ApplicationDbContext dbContext, ILogger<ForecastProvider> logger)
     {
         _dbContext = dbContext;
+        _logger = logger;
     }
 
     private IQueryable<Transaction> GetTransactionsQuery(ISpecification<Transaction> specification)
@@ -25,44 +29,51 @@ public class ForecastProvider : IForecastProvider
     
     public async Task<Dictionary<DateTime, decimal>> PolynomialBalanceForecast(ISpecification<Transaction> specification, DateTime endDate, int daysStep, int degree = 4)
     {
-        var today = DateTime.Today;
-        if (endDate <= today || (endDate - today).Days < daysStep)
-            return new Dictionary<DateTime, decimal>();
-        
-        var query = GetTransactionsQuery(specification);
-        var transactions = await query.OrderBy(t => t.TransactionTime).ToListAsync();
-
-        if (transactions.Count == 0) return new Dictionary<DateTime, decimal>();
-        
-        var balanceByDate = new Dictionary<DateTime, decimal>();
-        decimal cumulativeBalance = 0;
-
-        foreach (var transaction in transactions)
+        try
         {
-            cumulativeBalance += transaction.Value;
-            var date = transaction.TransactionTime.Date;
-            balanceByDate[date] = cumulativeBalance;
-        }
-        
-        var xData = balanceByDate.Keys.Select(d => d.ToOADate()).ToArray();
-        var yData = balanceByDate.Values.Select(b => (double)b).ToArray();
+            var today = DateTime.Today;
+            if (endDate <= today || (endDate - today).Days < daysStep)
+                return new Dictionary<DateTime, decimal>();
 
-        var coefficients = Fit.Polynomial(xData, yData, degree);
+            var query = GetTransactionsQuery(specification);
+            var transactions = await query.OrderBy(t => t.TransactionTime).ToListAsync();
 
-        var forecastResults = new Dictionary<DateTime, decimal>();
-        for (var currentDate = today; currentDate <= endDate; currentDate = currentDate.AddDays(daysStep))
-        {
-            double forecastX = currentDate.ToOADate();
-            double forecastY = 0;
-            
-            for (int i = 0; i <= degree; i++)
+            if (transactions.Count == 0) return new Dictionary<DateTime, decimal>();
+
+            var balanceByDate = new Dictionary<DateTime, decimal>();
+            decimal cumulativeBalance = 0;
+
+            foreach (var transaction in transactions)
             {
-                forecastY += coefficients[i] * Math.Pow(forecastX, i);
+                cumulativeBalance += transaction.Value;
+                var date = transaction.TransactionTime.Date;
+                balanceByDate[date] = cumulativeBalance;
             }
-            
-            forecastResults[currentDate] = (decimal)forecastY;
-        }
 
-        return forecastResults;
+            var xData = balanceByDate.Keys.Select(d => d.ToOADate()).ToArray();
+            var yData = balanceByDate.Values.Select(b => (double)b).ToArray();
+
+            var coefficients = Fit.Polynomial(xData, yData, degree);
+
+            var forecastResults = new Dictionary<DateTime, decimal>();
+            for (var currentDate = today; currentDate <= endDate; currentDate = currentDate.AddDays(daysStep))
+            {
+                double forecastX = currentDate.ToOADate();
+                double forecastY = 0;
+
+                for (int i = 0; i <= degree; i++)
+                {
+                    forecastY += coefficients[i] * Math.Pow(forecastX, i);
+                }
+
+                forecastResults[currentDate] = (decimal)forecastY;
+            }
+
+            return forecastResults;
+        }
+        catch (Exception e)
+        {
+            throw InfrastructureExceptionsHandlingHelper.Handle(e, _logger);
+        }
     }
 }

@@ -1,17 +1,17 @@
-using System.Security.Claims;
-using System.Text;
 using AutoBookKeeper.Application.Interfaces;
 using AutoBookKeeper.Application.Services;
+using AutoBookKeeper.Application.Validators;
 using AutoBookKeeper.Core.Configuration;
 using AutoBookKeeper.Core.Repositories;
 using AutoBookKeeper.Infrastructure.Data;
 using AutoBookKeeper.Infrastructure.Repositories;
 using AutoBookKeeper.Infrastructure.Services;
+using AutoBookKeeper.Web.Filters;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace AutoBookKeeper.Web.Extensions;
@@ -24,6 +24,7 @@ public static class ConfigureServicesExtension
         services.ConfigureDefaultServices(configuration);
         services.ConfigureApplicationServices(configuration);
         services.ConfigureInfrastructureServices(configuration);
+        services.ConfigureBackgroundServices(configuration);
         
         return services;
     }
@@ -35,7 +36,10 @@ public static class ConfigureServicesExtension
                                         throw new InvalidOperationException(
                                             $"Connection string '{activeConnection}' not found.");
         
-        services.AddControllers();
+        services.AddControllers(options =>
+        {
+            options.Filters.Add<ExceptionHandlingFilter>();
+        });
 
         services.AddAutoMapper(typeof(Program).Assembly);
         
@@ -111,6 +115,16 @@ public static class ConfigureServicesExtension
                                     throw new InvalidOperationException("AllowedMethods was not found"));
             });
         });
+
+        services.AddValidatorsFromAssemblyContaining<UserValidator>();
+    }
+
+    private static void ConfigureBackgroundServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        var interval = int.TryParse(configuration.GetSection("AutoCleaner")["UserTokens"], out var intervalMinutes) 
+            ? TimeSpan.FromMinutes(intervalMinutes) : TimeSpan.FromDays(1);
+        
+        services.AddHostedService<TokenCleanupService>(sp => new TokenCleanupService(sp, interval));
     }
     
     private static void ConfigureInfrastructureServices(this IServiceCollection services, IConfiguration configuration)

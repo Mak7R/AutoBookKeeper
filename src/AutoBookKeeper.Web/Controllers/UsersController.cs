@@ -60,7 +60,7 @@ public class UsersController : ApiController
             Status = result.Status,
             Extensions = new Dictionary<string, object?>
             {
-                { "errors", result.Errors }
+                { "errors", result.ValidationErrors }
             }
         });
     }
@@ -86,7 +86,7 @@ public class UsersController : ApiController
             Status = result.Status,
             Extensions = new Dictionary<string, object?>
             {
-                { "errors", result.Errors }
+                { "errors", result.ValidationErrors }
             }
         });
     }
@@ -113,7 +113,7 @@ public class UsersController : ApiController
             Status = result.Status,
             Extensions = new Dictionary<string, object?>
             {
-                { "errors", result.Errors }
+                { "errors", result.ValidationErrors }
             }
         });
     }

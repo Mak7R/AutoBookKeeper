@@ -23,8 +23,6 @@ public class AuthorizeAsTransactionOwner : AuthorizeAsAttribute
             if (!Guid.TryParse(transactionIdString, out var transactionId))
                 return false;
 
-            // todo 1 request with includes
-
             var transaction = await transactionService.GetByIdAsync(transactionId);
             if (transaction == null)
                 return false;

@@ -12,9 +12,9 @@ public interface IUsersService
     Task<int> CountAsync();
     Task<bool> VerifyPasswordAsync(UserModel user, string password);
     
-    Task<OperationResult<UserModel>> CreateAsync(UserModel user);
-    Task<OperationResult<UserModel>> CreateAsync(UserModel user, string password);
+    Task<OperationResult<UserModel>> CreateAsync(UserModel userModel);
+    Task<OperationResult<UserModel>> CreateAsync(UserModel userModel, string password);
     Task<OperationResult<UserModel>> UpdateUserPassword(UserModel user, string currentPassword, string newPassword);
-    Task<OperationResult<UserModel>> UpdateAsync(UserModel user);
+    Task<OperationResult<UserModel>> UpdateAsync(UserModel userModel);
     Task<OperationResult<UserModel>> DeleteAsync(UserModel user);
 }

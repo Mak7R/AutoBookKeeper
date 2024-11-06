@@ -41,7 +41,7 @@ public class TransactionsController : ApiController
         if (result.IsSuccessful)
             return CreatedAtAction("Get", "Transactions", new {transactionId = result.Result?.Id}, _mapper.Map<TransactionViewModel>(result.Result));
         
-        return this.ProblemResult(result, "Create operation was not successful");
+        return this.ProblemResult(result);
     }
     
     [AuthorizeAsTransactionOwner("transactionId")]
@@ -68,7 +68,7 @@ public class TransactionsController : ApiController
         if (result.IsSuccessful)
             return Ok(_mapper.Map<TransactionViewModel>(result.Result));
 
-        return this.ProblemResult(result, "Update operation was not successful");
+        return this.ProblemResult(result);
     }
 
     [AuthorizeAsTransactionOwner("transactionId")]
@@ -80,6 +80,6 @@ public class TransactionsController : ApiController
         if (result.IsSuccessful)
             return Ok(_mapper.Map<TransactionViewModel>(result.Result));
 
-        return this.ProblemResult(result, "Delete operation was not successful");
+        return this.ProblemResult(result);
     }
 }

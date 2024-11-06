@@ -1,9 +1,8 @@
 using AutoBookKeeper.Core.Entities.Base;
-using AutoBookKeeper.Core.Models;
 using AutoBookKeeper.Core.Repositories.Base;
 using AutoBookKeeper.Core.Specifications.Base;
 using AutoBookKeeper.Infrastructure.Data;
-using AutoBookKeeper.Infrastructure.Exceptions;
+using AutoBookKeeper.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -28,74 +27,118 @@ public class Repository<TEntity, TId> : IRepository<TEntity, TId>
     
     public virtual async Task<IReadOnlyList<TEntity>> GetAllAsync()
     {
-        return await DbContext.Set<TEntity>().ToListAsync();
+        try
+        {
+            return await DbContext.Set<TEntity>().ToListAsync();
+        }
+        catch (Exception e)
+        {
+            throw InfrastructureExceptionsHandlingHelper.Handle(e, _logger);
+        }
     }
 
     public virtual async Task<IReadOnlyList<TEntity>> GetAsync(ISpecification<TEntity> spec)
     {
-        return await ApplySpecification(spec).ToListAsync();
+        try
+        {
+            return await ApplySpecification(spec).ToListAsync();
+        }
+        catch (Exception e)
+        {
+            throw InfrastructureExceptionsHandlingHelper.Handle(e, _logger);
+        }
     }
 
     public virtual async Task<int> CountAsync()
     {
-        return await DbContext.Set<TEntity>().CountAsync();
+        try
+        {
+            return await DbContext.Set<TEntity>().CountAsync();
+        }
+        catch (Exception e)
+        {
+            throw InfrastructureExceptionsHandlingHelper.Handle(e, _logger);
+        }
     }
     
     public virtual async Task<int> CountAsync(ISpecification<TEntity> spec)
     {
-        return await ApplySpecification(spec).CountAsync();
+        try
+        {
+            return await ApplySpecification(spec).CountAsync();
+        }
+        catch (Exception e)
+        {
+            throw InfrastructureExceptionsHandlingHelper.Handle(e, _logger);
+        }
     }
     
     public virtual async Task<TEntity?> GetByIdAsync(TId id)
     {
-        return await DbContext.Set<TEntity>()
-            .AsNoTracking()
-            .Where(e => e.Id != null && e.Id.Equals(id))
-            .SingleOrDefaultAsync();
+        try
+        {
+            return await DbContext.Set<TEntity>()
+                .AsNoTracking()
+                .Where(e => e.Id != null && e.Id.Equals(id))
+                .SingleOrDefaultAsync();
+        }
+        catch (Exception e)
+        {
+            throw InfrastructureExceptionsHandlingHelper.Handle(e, _logger);
+        }
     }
 
-    public virtual async Task<OperationResult<TEntity>> CreateAsync(TEntity entity)
+    public virtual async Task<TEntity> CreateAsync(TEntity entity)
     {
         try
         {
             await DbContext.Set<TEntity>().AddAsync(entity);
             await DbContext.SaveChangesAsync();
-            return OperationResult<TEntity>.Ok(entity);
+            return entity;
+        }
+        catch (DbUpdateException dbUpdateException)
+        {
+            throw InfrastructureExceptionsHandlingHelper.Handle(dbUpdateException, _logger, "CREATE");
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error was occured while creating entity {entity}", entity);
-            return OperationResult<TEntity>.ServerError(new DataBaseException("Error was occured while creating entity", e));
+            throw InfrastructureExceptionsHandlingHelper.Handle(e, _logger);
         }
     }
 
-    public virtual async Task<OperationResult<TEntity>> UpdateAsync(TEntity entity)
+    public virtual async Task<TEntity> UpdateAsync(TEntity entity)
     {
         try
         {
             DbContext.Entry(entity).State = EntityState.Modified;
             await DbContext.SaveChangesAsync();
-            return OperationResult<TEntity>.Ok(entity);
+            return entity;
+        }
+        catch (DbUpdateException dbUpdateException)
+        {
+            throw InfrastructureExceptionsHandlingHelper.Handle(dbUpdateException, _logger, "UPDATE");
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error was occured while updating entity {entity}", entity);
-            return OperationResult<TEntity>.ServerError(new DataBaseException("Error was occured while updating entity", e));
+            throw InfrastructureExceptionsHandlingHelper.Handle(e, _logger);
         }
     }
 
-    public virtual async Task<OperationResult<TEntity>> DeleteAsync(TEntity entity)
+    public virtual async Task<TEntity> DeleteAsync(TEntity entity)
     {
         try
         {
             DbContext.Set<TEntity>().Remove(entity);
             await DbContext.SaveChangesAsync();
-            return OperationResult<TEntity>.Ok(entity);
+            return entity;
+        }
+        catch (DbUpdateException dbUpdateException)
+        {
+            throw InfrastructureExceptionsHandlingHelper.Handle(dbUpdateException, _logger, "DELETE");
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error was occured while deleting entity {entity}", entity);
-            return OperationResult<TEntity>.ServerError(new DataBaseException("Error was occured while deleting entity", e));
+            throw InfrastructureExceptionsHandlingHelper.Handle(e, _logger);
         }
     }
 }

@@ -12,7 +12,7 @@ public interface IRepository<TEntity, TId> where TEntity: Entity<TId>
     Task<int> CountAsync();
     Task<int> CountAsync(ISpecification<TEntity> spec);
     Task<TEntity?> GetByIdAsync(TId id);
-    Task<OperationResult<TEntity>> CreateAsync(TEntity entity);
-    Task<OperationResult<TEntity>> UpdateAsync(TEntity entity);
-    Task<OperationResult<TEntity>> DeleteAsync(TEntity entity);
+    Task<TEntity> CreateAsync(TEntity entity);
+    Task<TEntity> UpdateAsync(TEntity entity);
+    Task<TEntity> DeleteAsync(TEntity entity);
 }
